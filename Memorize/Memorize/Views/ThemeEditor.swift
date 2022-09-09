@@ -9,15 +9,17 @@ import SwiftUI
 
 struct ThemeEditor: View {
     
-    @Binding var theme: Theme
+//    @Binding var theme: Theme
     
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+//            .navigationBarBackButtonHidden(true)
     }
 }
 
 struct ThemeEditor_Previews: PreviewProvider {
     static var previews: some View {
-        ThemeEditor(theme: .constant(ThemeStore(name: "Test").theme(at: 0)))
+//        ThemeEditor(theme: .constant(ThemeStore(name: "Test").theme(at: 0)))
+        ThemeEditor()
     }
 }

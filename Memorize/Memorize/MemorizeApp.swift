@@ -13,7 +13,7 @@ struct MemorizeApp: App {
     @StateObject var themeStore = ThemeStore(name: "default")
     var body: some Scene {
         WindowGroup {
-            EmojiMemoryGameView(gameVM: emojiMemoryGame)
+            ThemesManager(gameVM: emojiMemoryGame)
                 .environmentObject(themeStore)
         }
     }

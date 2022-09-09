@@ -12,9 +12,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     
     private(set) var cards: Array<Card>
     private(set) var points = 0
-    
-    var theme: Theme
-    
+        
     private var indexOfTheOnlyCardFaceUp: Int? {
         get { cards.indices.filter { cards[$0].isFacedUp }.onlyIfThereIsOne }
         set { cards.indices.forEach { cards[$0].isFacedUp = ($0 == newValue)}}
@@ -48,21 +46,14 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         }
     }
     
-    init() {
-        self.theme = Theme(id: 9999, name: "Activities", color: Color.red, emojis: ["⛷", "🏂", "🪂", "🏋🏻‍♀️", "🤼", "🤸🏻‍♀️", "⛹🏻", "🤾🏻", "🏌🏻", "🏇🏻", "🧘🏻‍♀️", "🏄🏻‍♂️", "🏊🏻‍♂️", "🤽🏻", "🧗🏻‍♀️", "🚴🏼"], numberOfPairs: 16)
-        cards = []
-        createDeckOfCards(theme: theme)
-    }
-    
     init(theme: Theme) {
-        self.theme = theme
         cards = []
         createDeckOfCards(theme: theme)
     }
     
     mutating private func createDeckOfCards(theme: Theme) {
         // add cards
-        for pairIndex in 0..<self.theme.numberOfPairs {
+        for pairIndex in 0..<theme.numberOfPairs {
             let content = theme.emojis![pairIndex]
             cards.append(Card(id: pairIndex * 2, content: content as! CardContent))
             cards.append(Card(id: pairIndex * 2 + 1, content: content as! CardContent))

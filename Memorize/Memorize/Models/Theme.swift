@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct Theme: Identifiable, Equatable {
+struct Theme: Identifiable, Equatable, Hashable {
 
     var id: Int
     var name: String?

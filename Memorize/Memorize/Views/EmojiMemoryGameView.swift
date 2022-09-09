@@ -2,7 +2,7 @@
 //  EmojiMemoryGameView.swift
 //  Memorize
 //
-//  Created by Ana Clara Schotte on 18/07/2022.
+//  Created by Alexis Schotte on 18/07/2022.
 //
 
 import SwiftUI
@@ -52,11 +52,13 @@ struct EmojiMemoryGameView: View {
             .navigationTitle("Game")
             .navigationBarHidden(true)
         }
+        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(true)
     }
     
     private var titleAndPoints: some View {
         VStack {
-            Text("Memorize the \(gameVM.theme.name!)")
+            Text("Memorize the \(gameVM.selectedTheme.name!)")
                 .font(.largeTitle)
             Text("Points: \(gameVM.points)")
                 .font(.headline)
@@ -66,8 +68,7 @@ struct EmojiMemoryGameView: View {
     private var deckBoard: some View {
         ZStack {
             ForEach(gameVM.cards.filter(isUnDealt)) { card in
-                // removed , gradient: gameVM.themeGradient
-                CardView(card, gameVM.theme.color!)
+                CardView(card, gameVM.selectedTheme.color!)
                     .matchedGeometryEffect(id: card.id, in: dealingCardsNamespace)
                     .transition(AnyTransition.asymmetric(insertion: .scale, removal: .identity))
                     .zIndex(calcZIndex(card))
@@ -80,17 +81,6 @@ struct EmojiMemoryGameView: View {
                     deal(card)
                 }
             }
-            // quase funcionou
-//            for card in gameVM.cards {
-//                withAnimation(dealAnimation(card)) {
-////                    gameVM.turnCard(card: card)
-//                    deal(card)
-//                }
-//                withAnimation(dealAnimation(card)) {
-//                    gameVM.turnCard(card: card)
-////                    deal(card)
-//                }
-//            }
         }
         
     }
@@ -101,7 +91,7 @@ struct EmojiMemoryGameView: View {
                 Color.clear
             } else {
                 // removed , gradient: gameVM.themeGradient
-                CardView(card, gameVM.theme.color!)
+                CardView(card, gameVM.selectedTheme.color!)
                     .padding(4)
                     .matchedGeometryEffect(id: card.id, in: dealingCardsNamespace)
                     .transition(AnyTransition.asymmetric(insertion: AnyTransition.identity, removal: AnyTransition.scale).animation(.easeInOut(duration: 2)))
@@ -119,7 +109,7 @@ struct EmojiMemoryGameView: View {
         HStack {
             // Theme Manager Button
             NavigationLink {
-                ThemesManager()
+                ThemesManager(gameVM: gameVM)
             } label: {
                 VStack {
                     Image(systemName: "slider.horizontal.3")
@@ -133,7 +123,7 @@ struct EmojiMemoryGameView: View {
             Button {
                 withAnimation(Animation.easeInOut(duration: 3)) {
                     dealt.removeAll()
-                    gameVM.newGame()
+                    gameVM.newGame(theme: gameVM.selectedTheme)
                 }
             } label: {
                 VStack {
