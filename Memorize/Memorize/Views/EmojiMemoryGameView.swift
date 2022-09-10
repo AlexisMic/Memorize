@@ -58,7 +58,7 @@ struct EmojiMemoryGameView: View {
     
     private var titleAndPoints: some View {
         VStack {
-            Text("Memorize the \(gameVM.selectedTheme.name!)")
+            Text("Memorize the \(gameVM.selectedTheme.name)")
                 .font(.largeTitle)
             Text("Points: \(gameVM.points)")
                 .font(.headline)
@@ -68,7 +68,7 @@ struct EmojiMemoryGameView: View {
     private var deckBoard: some View {
         ZStack {
             ForEach(gameVM.cards.filter(isUnDealt)) { card in
-                CardView(card, gameVM.selectedTheme.color!)
+                CardView(card, gameVM.selectedTheme.color)
                     .matchedGeometryEffect(id: card.id, in: dealingCardsNamespace)
                     .transition(AnyTransition.asymmetric(insertion: .scale, removal: .identity))
                     .zIndex(calcZIndex(card))
@@ -91,7 +91,7 @@ struct EmojiMemoryGameView: View {
                 Color.clear
             } else {
                 // removed , gradient: gameVM.themeGradient
-                CardView(card, gameVM.selectedTheme.color!)
+                CardView(card, gameVM.selectedTheme.color)
                     .padding(4)
                     .matchedGeometryEffect(id: card.id, in: dealingCardsNamespace)
                     .transition(AnyTransition.asymmetric(insertion: AnyTransition.identity, removal: AnyTransition.scale).animation(.easeInOut(duration: 2)))

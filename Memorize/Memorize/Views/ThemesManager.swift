@@ -10,15 +10,10 @@ import SwiftUI
 struct ThemesManager: View {
     
     @EnvironmentObject var themeStore: ThemeStore
-    @State private var editMode: EditMode = .inactive {
-        didSet {
-            print(editMode)
-        }
-    }
+    @State private var editMode: EditMode = .inactive
     @ObservedObject var gameVM: EmojiMemoryGame
     @State private var isActiveNavigationLink = false
-    
-    
+    @State private var selectedTheme: Theme?
     
     var body: some View {
         NavigationView {
@@ -28,13 +23,13 @@ struct ThemesManager: View {
             .navigationTitle("Themes")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    NavigationLink {
-//                        ThemeEditor(theme: $themeStore.themes[0])
-                        ThemeEditor()
+                    Button {
+                        // creates new empty theme
+                        themeStore.insertTheme(name: "", color: Color.black, emojis: [], numberOfPairs: 8)
+                        selectedTheme = themeStore.themes.last
                     } label: {
                         Image(systemName: "plus.circle")
                     }
-
                 }
                 ToolbarItem {
                     EditButton()
@@ -60,25 +55,18 @@ struct ThemesManager: View {
                     isActiveNavigationLink = true
                 } label: {
                     VStack(alignment: .leading) {
-                        Text(themeStore.theme(at: index).name!)
-                            .foregroundColor(.black)
+                        Text(themeStore.theme(at: index).name)
+                            .foregroundColor(themeStore.theme(at: index).color)
                             .font(.headline)
-                        Text(themeStore.stringEmojis(themeStore.theme(at: index).emojis!))
+                        Text(themeStore.theme(at: index).stringEmojis)
+                        Text("\(themeStore.theme(at: index).numberOfPairs)")
+                            .foregroundColor(.black)
                     }
                     .padding(.horizontal)
+                    .gesture(editMode == .active ? tap(index: index) : nil)
                 }
 
             }
-//            NavigationLink(destination: {
-//                destinationView(index: index)
-//            }, label: {
-//                VStack(alignment: .leading) {
-//                    Text(themeStore.theme(at: index).name!)
-//                        .font(.headline)
-//                    Text(themeStore.stringEmojis(themeStore.theme(at: index).emojis!))
-//                }
-////                .gesture(editMode == .inactive ? tap : nil)
-//            })
         }
         .onDelete { indexSet in
             themeStore.themes.remove(at: indexSet.first!)
@@ -86,21 +74,25 @@ struct ThemesManager: View {
         .onMove { indexSet, newPosition in
             themeStore.themes.move(fromOffsets: indexSet, toOffset: newPosition)
         }
+        .sheet(item: $selectedTheme) { theme in
+            ThemeEditor(theme: $themeStore.themes[themeStore.themes.firstIndex(where: {$0.id == theme.id})!])
+        }
     }
     
-    private var tap: some Gesture {
+    private func tap(index: Int) -> some Gesture {
         TapGesture(count: 1)
             .onEnded {
-                print("tapped")
+                selectedTheme = themeStore.theme(at: index)
             }
     }
     
     @ViewBuilder
     private func destinationView(index: Int) -> some View {
-        if editMode == .inactive {
+        switch editMode {
+        case .inactive:
             EmojiMemoryGameView(gameVM: gameVM)
-        } else {
-            ThemeEditor()
+        default:
+            EmptyView()
         }
     }
 }
@@ -113,12 +105,4 @@ struct ThemeManager_Previews: PreviewProvider {
             .environmentObject(ThemeStore(name: "Test"))
     }
 }
-
-
-
-// navegation Link
-//    .onDisappear {
-//        print("ondisappear \(themeStore.theme(at: index).name!)")
-//        gameVM.selectedTheme = themeStore.theme(at: index)
-//    }
 

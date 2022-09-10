@@ -2,7 +2,7 @@
 //  MemoryGame.swift
 //  Memorize
 //
-//  Created by Ana Clara Schotte on 25/07/2022.
+//  Created by Alexis Schotte on 25/07/2022.
 //
 
 import Foundation
@@ -54,7 +54,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     mutating private func createDeckOfCards(theme: Theme) {
         // add cards
         for pairIndex in 0..<theme.numberOfPairs {
-            let content = theme.emojis![pairIndex]
+            let content = theme.emojis[pairIndex]
             cards.append(Card(id: pairIndex * 2, content: content as! CardContent))
             cards.append(Card(id: pairIndex * 2 + 1, content: content as! CardContent))
         }

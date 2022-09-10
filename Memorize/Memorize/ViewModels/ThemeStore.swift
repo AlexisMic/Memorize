@@ -25,14 +25,6 @@ class ThemeStore: ObservableObject {
         }
     }
     
-    func stringEmojis(_ emojis: Array<String>) -> String {
-        var emojisString = ""
-        for emoji in emojis {
-            emojisString += emoji
-        }
-        return emojisString
-    }
-    
     //MARK: Intents
     
     func theme(at index: Int) -> Theme {
