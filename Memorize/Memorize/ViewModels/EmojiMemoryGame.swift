@@ -13,13 +13,15 @@ class EmojiMemoryGame: ObservableObject {
     
     @Published private var model: MemoryGame<String>
     
-    @Published var selectedTheme: Theme {
+    var selectedTheme: Theme {
         didSet {
             if selectedTheme != oldValue {
                 newGame(theme: selectedTheme)
             }
         }
     }
+    
+    var sameGame = false
     
     var points: Int {
         model.points
@@ -30,7 +32,7 @@ class EmojiMemoryGame: ObservableObject {
     }
     
     init() {
-        let theme = Theme(id: 9999, name: "Activities", color: Color.red, emojis: ["⛷", "🏂", "🪂", "🏋🏻‍♀️", "🤼", "🤸🏻‍♀️", "⛹🏻", "🤾🏻", "🏌🏻", "🏇🏻", "🧘🏻‍♀️", "🏄🏻‍♂️", "🏊🏻‍♂️", "🤽🏻", "🧗🏻‍♀️", "🚴🏼"], numberOfPairs: 16)
+        let theme = Theme(id: 9999, name: "Activities", rgbaColor: RGBAColor(color: Color.red), emojis: ["⛷", "🏂", "🪂", "🏋🏻‍♀️", "🤼", "🤸🏻‍♀️", "⛹🏻", "🤾🏻", "🏌🏻", "🏇🏻", "🧘🏻‍♀️", "🏄🏻‍♂️", "🏊🏻‍♂️", "🤽🏻", "🧗🏻‍♀️", "🚴🏼"], numberOfPairs: 16)
         self.selectedTheme = theme
         model = MemoryGame(theme: theme)
     }
@@ -52,6 +54,10 @@ class EmojiMemoryGame: ObservableObject {
     
     func shuffle() {
         model.shuffle()
+    }
+    
+    func faceAllCardsOff() {
+        model.faceAllCardsOff()
     }
     
 }

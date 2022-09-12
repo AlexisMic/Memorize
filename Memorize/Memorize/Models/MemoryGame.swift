@@ -18,8 +18,14 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         set { cards.indices.forEach { cards[$0].isFacedUp = ($0 == newValue)}}
     }
     
+    mutating func faceAllCardsOff() {
+        for index in cards.indices.filter({cards[$0].isFacedUp == true }) {
+            cards[index].isFacedUp = false
+        }
+    }
+    
     mutating func choose(_ card: Card) {
-        
+        let extraPoints = card.bonusRemaining > 0 ? 1 : 0
         if let chosenIndex = cards.firstIndex(where: {$0.id == card.id}),
         !cards[chosenIndex].isFacedUp,
         !cards[chosenIndex].isMatched {
@@ -27,7 +33,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
                 if cards[chosenIndex].content == cards[potencialMatchIndex].content {
                     cards[chosenIndex].isMatched = true
                     cards[potencialMatchIndex].isMatched = true
-                    points += 1
+                    points += (1 + extraPoints)
                 } else {
                     if cards[chosenIndex].hasAlreadyFacedUp {
                         points -= 1
@@ -42,7 +48,6 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
             } else {
                 indexOfTheOnlyCardFaceUp = chosenIndex
             }
-            
         }
     }
     

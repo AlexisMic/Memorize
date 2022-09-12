@@ -25,7 +25,7 @@ struct ThemesManager: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
                         // creates new empty theme
-                        themeStore.insertTheme(name: "", color: Color.black, emojis: [], numberOfPairs: 8)
+                        themeStore.insertTheme(name: "New Theme", color: Color.black, emojis: [], numberOfPairs: 8)
                         selectedTheme = themeStore.themes.last
                     } label: {
                         Image(systemName: "plus.circle")
@@ -40,6 +40,7 @@ struct ThemesManager: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
     }
+
     
     private var listOfThemes: some View {
         ForEach (themeStore.themes.indices, id:\.self) { index in
@@ -51,19 +52,36 @@ struct ThemesManager: View {
                     EmptyView()
                 }
                 Button {
-                    gameVM.selectedTheme = themeStore.theme(at: index)
+                    if gameVM.selectedTheme == themeStore.theme(at: index) {
+                        gameVM.sameGame = true
+                    } else {
+                        gameVM.selectedTheme = themeStore.theme(at: index)
+                    }
                     isActiveNavigationLink = true
                 } label: {
-                    VStack(alignment: .leading) {
-                        Text(themeStore.theme(at: index).name)
+                    HStack {
+                        Image(systemName: "rectangle.portrait.fill")
+                            .font(.largeTitle)
                             .foregroundColor(themeStore.theme(at: index).color)
-                            .font(.headline)
-                        Text(themeStore.theme(at: index).stringEmojis)
-                        Text("\(themeStore.theme(at: index).numberOfPairs)")
-                            .foregroundColor(.black)
-                    }
-                    .padding(.horizontal)
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text(themeStore.theme(at: index).name)
+                                    .foregroundColor(.black)
+                                    .fontWeight(.bold)
+                                Spacer()
+                                Text("\(themeStore.theme(at: index).numberOfPairs)")
+                                    .foregroundColor(.black)
+                                    .font(.headline)
+                                    .padding(.horizontal)
+                            }
+                            .padding(2)
+
+                            Text(themeStore.theme(at: index).stringEmojis)
+                                .lineLimit(2)
+                        }
+                        .padding(.horizontal)
                     .gesture(editMode == .active ? tap(index: index) : nil)
+                    }
                 }
 
             }
@@ -74,9 +92,20 @@ struct ThemesManager: View {
         .onMove { indexSet, newPosition in
             themeStore.themes.move(fromOffsets: indexSet, toOffset: newPosition)
         }
-        .sheet(item: $selectedTheme) { theme in
+        .sheet(item: $selectedTheme, onDismiss: {
+            // If some theme doesn't have a name or at least 2 emojis, erase it.
+            themeStore.themes = themeStore.themes.filter({!$0.name.isEmpty && $0.emojis.count > 1})
+            // If some theme has more pairs than emojis, adjust to max count emojis
+            for index in themeStore.themes.indices {
+                if themeStore.themes[index].numberOfPairs > themeStore.themes[index].emojis.count {
+                    themeStore.themes[index].numberOfPairs = themeStore.themes[index].emojis.count
+                }
+            }
+            //Sort of mode Edit after ThemeEditor View
+            editMode = .inactive
+        }, content: { theme in
             ThemeEditor(theme: $themeStore.themes[themeStore.themes.firstIndex(where: {$0.id == theme.id})!])
-        }
+        })
     }
     
     private func tap(index: Int) -> some Gesture {

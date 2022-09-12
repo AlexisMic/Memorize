@@ -17,6 +17,8 @@ struct EmojiMemoryGameView: View {
     
     @Namespace private var dealingCardsNamespace
     
+    @State private var gameOver = false
+    
     private func deal(_ card: Card) {
         dealt.insert(card.id)
     }
@@ -35,6 +37,24 @@ struct EmojiMemoryGameView: View {
     
     private func calcZIndex(_ card: Card) -> Double {
         -Double(gameVM.cards.firstIndex(where: { card.id == $0.id }) ?? 0)
+    }
+    
+    private func newGame(_ theme: Theme) {
+        gameOver = false
+        withAnimation(.easeInOut(duration: 1)) {
+            gameVM.faceAllCardsOff()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation(.easeInOut(duration: 1)) {
+                dealt.removeAll()
+            }
+        }
+        // this viewID restarts the view, canceling the animations
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            viewID += 1
+            gameVM.newGame(theme: gameVM.selectedTheme)
+
+        }
         
     }
     
@@ -54,6 +74,33 @@ struct EmojiMemoryGameView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(true)
+        .onAppear {
+            if gameVM.sameGame == true {
+                gameVM.cards.forEach({deal($0)})
+                gameVM.sameGame = false
+            }
+        }
+        .alert(Text("Game Over"), isPresented: $gameOver) {
+            Button {
+                newGame(gameVM.selectedTheme)
+            } label: {
+                Text("New Game")
+            }
+            Button(role: .cancel) {
+                gameOver = false
+            } label: {
+                Text("Cancel")
+            }
+
+        } message: {
+            if gameVM.points > 0 {
+                Text("Congratulations!!! You won \(gameVM.points) points. Play again?")
+            } else {
+                Text("Sorry, but you made \(gameVM.points) points. Play again?")
+            }
+        }
+        
+
     }
     
     private var titleAndPoints: some View {
@@ -85,12 +132,13 @@ struct EmojiMemoryGameView: View {
         
     }
     
+    @State private var viewID = 0
+    
     private var gameBoard: some View {
         AspectVGrid(items: gameVM.cards, aspectRatio: 2/3) { card in
             if isUnDealt(card) || (card.isMatched && !card.isFacedUp) {
                 Color.clear
             } else {
-                // removed , gradient: gameVM.themeGradient
                 CardView(card, gameVM.selectedTheme.color)
                     .padding(4)
                     .matchedGeometryEffect(id: card.id, in: dealingCardsNamespace)
@@ -99,10 +147,14 @@ struct EmojiMemoryGameView: View {
                     .onTapGesture {
                         withAnimation(Animation.easeInOut) {
                             gameVM.choose(card)
+                            if gameVM.cards.filter({!$0.isMatched}).isEmpty {
+                                gameOver = true
+                            }
                         }
                     }
             }
         }
+        .id(viewID)
     }
     
     private var buttons: some View {
@@ -122,8 +174,7 @@ struct EmojiMemoryGameView: View {
             // New Game Button
             Button {
                 withAnimation(Animation.easeInOut(duration: 3)) {
-                    dealt.removeAll()
-                    gameVM.newGame(theme: gameVM.selectedTheme)
+                    newGame(gameVM.selectedTheme)
                 }
             } label: {
                 VStack {

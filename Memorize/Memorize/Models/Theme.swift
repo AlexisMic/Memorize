@@ -6,13 +6,12 @@
 //
 
 import Foundation
-import SwiftUI
 
-struct Theme: Identifiable, Equatable, Hashable {
+struct Theme: Identifiable, Equatable, Hashable, Codable {
 
     var id: Int
     var name: String
-    var color: Color
+    var rgbaColor: RGBAColor
     var emojis: Array<String>
     var numberOfPairs: Int
     

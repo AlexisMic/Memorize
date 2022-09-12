@@ -11,10 +11,31 @@ import SwiftUI
 class ThemeStore: ObservableObject {
     
     private var name: String
-    @Published var themes: Array<Theme> = []
+    
+    @Published var themes: Array<Theme> = [] {
+        didSet {
+            storeUserDefaults()
+        }
+    }
+    
+    private var userDefaultsKey: String {
+        "ThemeStore" + name
+    }
+    
+    private func storeUserDefaults() {
+        UserDefaults.standard.set(try? JSONEncoder().encode(themes), forKey: userDefaultsKey)
+    }
+    
+    private func restoreUserDefaults() {
+        if let jsonData = UserDefaults.standard.data(forKey: userDefaultsKey),
+        let decodedThemes = try? JSONDecoder().decode(Array<Theme>.self, from: jsonData) {
+            themes = decodedThemes
+        }
+    }
     
     init(name: String) {
         self.name = name
+        restoreUserDefaults()
         if themes.isEmpty {
             insertTheme(name: "Vehicles", color: Color.red, emojis: ["🚍", "✈️", "🛳", "🚂", "🦼", "🛴", "🚲", "🛵", "🏍", "🛺", "🚨", "🚘", "🚖", "🚡", "🚠", "🚟", "🚃", "🚋", "🚞", "🚝", "🚅", "🚆", "🚊", "🛩"], numberOfPairs: 24)
             insertTheme(name: "Activities", color: Color.blue, emojis: ["⛷", "🏂", "🪂", "🏋🏻‍♀️", "🤼", "🤸🏻‍♀️", "⛹🏻", "🤾🏻", "🏌🏻", "🏇🏻", "🧘🏻‍♀️", "🏄🏻‍♂️", "🏊🏻‍♂️", "🤽🏻", "🧗🏻‍♀️", "🚴🏼"], numberOfPairs: 16)
@@ -34,7 +55,7 @@ class ThemeStore: ObservableObject {
     
     func insertTheme(name: String, color: Color, emojis: Array<String>, numberOfPairs: Int) {
         let uniqueId = themes.count
-        let newTheme = Theme(id: uniqueId, name: name, color: color, emojis: emojis, numberOfPairs: numberOfPairs)
+        let newTheme = Theme(id: uniqueId, name: name, rgbaColor: RGBAColor(color: color), emojis: emojis, numberOfPairs: numberOfPairs)
         themes.append(newTheme)
     }
     
